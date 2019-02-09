@@ -69,8 +69,8 @@ def write_data_to_file(data, filename):
                                     lineterminator='\n')
             for date in sorted(data.keys()):
                 for country_code in sorted(data[date]):
-                    csv_writer.writerow([date, country_code,
-                                        *data[date][country_code]])
+                    csv_writer.writerow(date, country_code,
+                                        *data[date][country_code])
     except KeyError as e:
         sys.stderr.write(e)
 
