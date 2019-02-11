@@ -8,8 +8,8 @@ import datetime
 def check_if_file_exists(filename):
     try:
         pathlib.Path(filename).resolve(strict=True)
-    except FileNotFoundError as e:
-        sys.exit(e)
+    except FileNotFoundError:
+        sys.exit(f'File not found: {filename}')
 
 
 def check_encoding(filename):
@@ -76,6 +76,9 @@ def write_data_to_file(data, filename):
 
 
 def main():
+    if len(sys.argv) != 3:
+        sys.exit(f'To run this program type: csv_report_processing.py '
+                 f'input_file.csv output_file.csv')
     input_file, output_file = sys.argv[1:]
     check_if_file_exists(input_file)
     data = load_data_from_file(input_file)
