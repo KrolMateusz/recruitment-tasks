@@ -14,34 +14,47 @@ def check_link(domain, link):
     return link
 
 
-def get_all_links(url, page='all'):
-    domain = urlparse(url).netloc
+def get_domain(url):
+    return urlparse(url).netloc
+
+
+def get_title_of_page(url):
+    source_code = urlopen(url).read()
+    soup = BeautifulSoup(source_code, 'html.parser')
+    return soup.title.string
+
+
+def get_links_from_page(url):
+    domain = get_domain(url)
+    links = set([])
+    source_code = urlopen(url).read()
+    soup = BeautifulSoup(source_code, 'html.parser')
+    for link in soup.find_all('a'):
+        link = check_link(domain, link)
+        if link:
+            links.add(link)
+    return set(links) - set([url])
+
+
+def get_links_from_domain(url):
     links_to_check = set([url])
     links_checked = set([])
     while links_checked != links_to_check:
-        source_code = urlopen(url).read()
-        soup = BeautifulSoup(source_code, 'html.parser')
-        for link in soup.find_all('a'):
-            link = check_link(domain, link)
-            if link:
-                links_to_check.add(link)
-        if page == 'current':
-            return {soup.title.string: links_to_check - set([url])}
+        for link in get_links_from_page(url):
+            links_to_check.add(link)
         links_checked.add(url)
-        url = links_to_check - links_checked
-        if len(url) >= 1:
-            url = url.pop()
+        urls = links_to_check - links_checked
+        if len(urls) > 0:
+            url = urls.pop()
     return links_checked
 
 
 def site_map(url):
-    all_links = get_all_links(url)
     domain_mapping = {}
-    for link in all_links:
-        domain_mapping.setdefault(link, get_all_links(link, page='current'))
+    for link in get_links_from_domain(url):
+        domain_mapping.setdefault(link, {get_title_of_page(link): get_links_from_page(link)})
     return domain_mapping
 
 
 if __name__ == '__main__':
     web_url = 'http://127.0.0.1:8000'
-    site_map(web_url)
