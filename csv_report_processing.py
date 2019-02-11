@@ -77,22 +77,29 @@ def load_data_from_file(filename):
                 sys.stderr.write(f'Row omitted: {len(row)} values instead '
                                  f'of 4 in row: {row}\n')
                 continue
-            date, state, impressions, ctr = row
-            country_code = get_country_code(state)
-            # date is written in format YYYY/MM/DD
-            date = datetime.date(int(date[6:]), int(date[:2]),
-                                 int(date[3:5]))
-            # inserts date as key and empty dictionary as value, if it was not
-            # in dictionary
-            data.setdefault(date, {})
-            # inserts code of country as key, if it was not in dictionary with
-            # [0, 0] as a value
-            data[date].setdefault(country_code, [0, 0])
-            # adds number of impressions and rounded number of clicks for every
-            # code of country
-            data[date][country_code][0] += int(impressions)
-            data[date][country_code][1] += round(float(ctr[:-1])
-                                                 * int(impressions) / 100)
+            try:
+                date, state, impressions, ctr = row
+                ctr = float(ctr[:-1])
+                if not 0 <= ctr <= 100:
+                    sys.stderr.write(f'Row omitted: ctr ({ctr}) is not in '
+                                     f'range <0, 100>.')
+                country_code = get_country_code(state)
+                # date is written in format YYYY/MM/DD
+                date = datetime.date(int(date[6:]), int(date[:2]),
+                                     int(date[3:5]))
+                # inserts date as key and empty dictionary as value, if it was
+                # not in dictionary
+                data.setdefault(date, {})
+                # inserts code of country as key, if it was not in dictionary
+                # with [0, 0] as a value
+                data[date].setdefault(country_code, [0, 0])
+                # adds number of impressions and rounded number of clicks for
+                # every code of country
+                data[date][country_code][0] += int(impressions)
+                data[date][country_code][1] += round(ctr * int(impressions)
+                                                     / 100)
+            except ValueError as e:
+                sys.stderr.write(f'Row omitted, error occurred: {e}\n')
     return data
 
 
@@ -119,8 +126,8 @@ def main():
     """Writes aggregated data to file given using cli"""
     # if wrong number of arguments is given, program will stop running
     if len(sys.argv) != 3:
-        sys.exit(f'To run this program type: csv_report_processing.py '
-                 f'input_file.csv output_file.csv')
+        sys.exit(f'To run this program type in command prompt: '
+                 f'csv_report_processing.py input_file.csv output_file.csv')
     input_file, output_file = sys.argv[1:]
     check_if_file_exists(input_file)
     data = load_data_from_file(input_file)
