@@ -112,8 +112,8 @@ def site_map(url):
     E.g. {'Index': {'http://127.0.0.1:8000/site.html',
     'http://127.0.0.1:8000/example.html'}}
 
-    :param url:
-    :return:
+    :param url: URL address
+    :return dict: mapping of domain
     """
     domain_mapping = {}
     for link in get_links_from_domain(url):
