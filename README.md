@@ -17,7 +17,8 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-csv_report_processing.py should be run via command prompt.
+To run csv_report_processing.py open command line in project directory and type
+this command with proper file names.
 ```commandline
 csv_report_processing.py input_file.csv output_file.csv
 ```
