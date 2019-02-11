@@ -45,8 +45,8 @@ def load_data_from_file(filename):
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
                 if len(row) != 4:
-                    sys.stderr.write(f'{len(row)} values instead of 4 in row: '
-                                     f'{row}\n')
+                    sys.stderr.write(f'Row omitted: {len(row)} values instead '
+                                     f'of 4 in row: {row}\n')
                     continue
                 date, state, impressions, ctr = row
                 state = get_country_code(state)
@@ -64,7 +64,7 @@ def load_data_from_file(filename):
 
 def write_data_to_file(data, filename):
     try:
-        with open(filename, 'w', newline='') as csv_file:
+        with open(filename, 'w', newline='', encoding='utf-8') as csv_file:
             csv_writer = csv.writer(csv_file, delimiter=',',
                                     lineterminator='\n')
             for date in sorted(data.keys()):
